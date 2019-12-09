@@ -28,12 +28,34 @@ module.exports = {
     me: async (_, __, { dataSources }) =>
       dataSources.userAPI.findOrCreateUser(),
   },
+  Mutation: {
+    login: async (_, { email }, { dataSources }) => {
+      const user = await dataSources.userAPI.findOrCreateUser({ email });
+      if (user) return Buffer.from(email).toString('base64');
+    }
+  },
   Mission: {
     // make sure the default size is 'large' in case user doesn't specify
     missionPatch: (mission, { size } = { size: 'LARGE' }) => {
       return size === 'SMALL'
         ? mission.missionPatchSmall
         : mission.missionPatchLarge;
+    },
+  },
+  Launch: {
+    isBooked: async (laucnh, _, { dataSources }) => dataSources.userAPI.isBookedOnLaunch({ launchId: launch.id }),
+  },
+  User: {
+    trips: async (_, __, { dataSources }) => {
+      const launchIds = await dataSources.userAPI.getLaunchIdsByUser();
+
+      if (!launchIds.length) return [];
+
+      return (
+        dataSources.launchAPI.getLaunchesByIds({
+          launchIds,
+        }) || []
+      );
     },
   },
 };
