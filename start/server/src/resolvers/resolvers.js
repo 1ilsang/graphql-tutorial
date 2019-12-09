@@ -1,8 +1,8 @@
-const { paginateResults } = require('./utils');
+const { paginateResults } = require('../utils');
+const mutation = require('./mutation');
 
 module.exports = {
   Query: {
-
     launches: async (_, { pageSize = 20, after }, { dataSources }) => {
       const allLaunches = await dataSources.launchAPI.getAllLaunches();
       // we want these in reverse chronological order
@@ -28,12 +28,7 @@ module.exports = {
     me: async (_, __, { dataSources }) =>
       dataSources.userAPI.findOrCreateUser(),
   },
-  Mutation: {
-    login: async (_, { email }, { dataSources }) => {
-      const user = await dataSources.userAPI.findOrCreateUser({ email });
-      if (user) return Buffer.from(email).toString('base64');
-    }
-  },
+  Mutation: mutation,
   Mission: {
     // make sure the default size is 'large' in case user doesn't specify
     missionPatch: (mission, { size } = { size: 'LARGE' }) => {
