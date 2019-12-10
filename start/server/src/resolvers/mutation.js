@@ -1,8 +1,4 @@
 module.exports = {
-  login: async (_, { email }, { dataSources }) => {
-    const user = await dataSources.userAPI.findOrCreateUser({ email });
-    if (user) return Buffer.from(email).toString('base64');
-  },
   bookTrips: async (_, { launchIds }, { dataSources }) => {
     const results = await dataSources.userAPI.bookTrips({ launchIds });
     const launches = await dataSources.launchAPI.getLaunchesByIds({
@@ -21,7 +17,7 @@ module.exports = {
     };
   },
   cancelTrip: async (_, { launchId }, { dataSources }) => {
-    const result = await dataSources.userAPI.cancelTrip({ launchId });
+    const result = dataSources.userAPI.cancelTrip({ launchId });
 
     if (!result)
       return {
@@ -35,5 +31,9 @@ module.exports = {
       message: 'trip cancelled',
       launches: [launch],
     };
+  },
+  login: async (_, { email }, { dataSources }) => {
+    const user = await dataSources.userAPI.findOrCreateUser({ email });
+    if (user) return new Buffer(email).toString('base64');
   },
 };
